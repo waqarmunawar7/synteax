@@ -449,4 +449,87 @@ function createBackToTop() {
 }
 
 // Initialize back to top button
-document.addEventListener('DOMContentLoaded', createBackToTop); 
+document.addEventListener('DOMContentLoaded', createBackToTop);
+
+// Contact Form Functionality
+function initContactForm() {
+    const contactForm = document.getElementById('contactForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const formMessage = document.getElementById('formMessage');
+    
+    if (!contactForm) return;
+    
+    // Rate limiting - prevent multiple submissions within 5 seconds
+    let lastSubmissionTime = 0;
+    const SUBMISSION_COOLDOWN = 5000; // 5 seconds
+    
+    contactForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Check rate limiting
+        const now = Date.now();
+        if (now - lastSubmissionTime < SUBMISSION_COOLDOWN) {
+            showMessage('Please wait a few seconds before submitting again.', 'error');
+            return;
+        }
+        
+        // Show loading state
+        submitBtn.classList.add('loading');
+        submitBtn.disabled = true;
+        
+        // Hide any previous messages
+        formMessage.style.display = 'none';
+        
+        try {
+            // Get form data
+            const formData = new FormData(this);
+            
+            // Send to Formspree
+            const response = await fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            if (response.ok) {
+                // Success
+                lastSubmissionTime = now; // Update last submission time
+                showMessage('Thank you! Your message has been sent successfully. We\'ll get back to you soon.', 'success');
+                this.reset(); // Clear the form
+            } else {
+                // Error
+                const errorData = await response.json();
+                showMessage('Sorry, there was an error sending your message. Please try again or contact us directly.', 'error');
+            }
+        } catch (error) {
+            // Network or other error
+            showMessage('Sorry, there was an error sending your message. Please try again or contact us directly.', 'error');
+        } finally {
+            // Reset button state
+            submitBtn.classList.remove('loading');
+            submitBtn.disabled = false;
+        }
+    });
+    
+    function showMessage(message, type) {
+        formMessage.textContent = message;
+        formMessage.className = `form-message ${type}`;
+        formMessage.style.display = 'block';
+        
+        // Scroll to message
+        formMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // Auto-hide success message after 5 seconds
+        if (type === 'success') {
+            setTimeout(() => {
+                formMessage.style.display = 'none';
+            }, 5000);
+        }
+    }
+}
+
+// Initialize contact form
+document.addEventListener('DOMContentLoaded', initContactForm); 

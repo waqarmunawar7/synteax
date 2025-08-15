@@ -443,7 +443,10 @@
                     </div>
                 </div>
                 <div class="contact-form">
-                    <form id="contactForm" class="form">
+                    <form id="contactForm" class="form" action="https://formspree.io/f/xrbldjlb" method="POST">
+                        <!-- CSRF Protection -->
+                        <input type="hidden" name="_csrf" value="synteax-contact-form-2024" />
+                        
                         <div class="form-group">
                             <label for="name">Full Name *</label>
                             <input type="text" id="name" name="name" required>
@@ -460,7 +463,13 @@
                             <label for="message">Tell us about your project *</label>
                             <textarea id="message" name="message" rows="5" required placeholder="Describe your MVP idea, timeline, and any specific requirements..."></textarea>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-full">Send Message</button>
+                        <button type="submit" class="btn btn-primary btn-full" id="submitBtn">
+                            <span class="btn-text">Send Message</span>
+                            <span class="btn-loading" style="display: none;">
+                                <i class="fas fa-spinner fa-spin"></i> Sending...
+                            </span>
+                        </button>
+                        <div id="formMessage" class="form-message" style="display: none;"></div>
                     </form>
                 </div>
             </div>
